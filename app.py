@@ -11,7 +11,7 @@ REMETENTE = "ferreiramateuss000@gmail.com"
 SENHA_APP = "yvsdhnqamzqkhmay"  # Senha de app gerada no Gmail
 
 def enviar_email(email_cliente, senha):
-    mensagem = f"""\
+    mensagem = f"""\ 
 Assunto: Acesso à Plataforma
 
 Olá! Obrigado pela compra. Aqui estão seus dados de acesso:
@@ -38,9 +38,19 @@ def home():
 @app.route("/webhook_kirvano", methods=["POST"])
 def webhook_kirvano():
     dados = request.get_json()
-    email_cliente = dados.get("cliente_email")
+    
+    # Log para ver o que a Kirvano está enviando
+    print("🔍 Dados recebidos da Kirvano:", dados)
+
+    # Verifica se os dados chegaram corretamente
+    if not dados:
+        return jsonify({"erro": "Nenhum dado recebido"}), 400
+
+    # Tenta pegar o e-mail de diferentes formas
+    email_cliente = dados.get("cliente_email") or dados.get("email") or dados.get("user_email")
     status = dados.get("status")
 
+    # Verifica se os dados são válidos
     if status == "aprovado" and email_cliente:
         senha_gerada = str(random.randint(10000, 99999))
         sucesso = enviar_email(email_cliente, senha_gerada)
